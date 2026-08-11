@@ -1,0 +1,18 @@
+name: Test Dock-Diet Action
+
+# Yeh pipeline tab chalegi jab bhi aap code push karengi
+on: [push]
+
+jobs:
+  test-our-tool:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Repository ka code download karna
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Hamara apna banaya hua Dock-Diet Action chalana
+      - name: Run Dock-Diet
+        uses: ./ # './' ka matlab hai ke issi repository ki action.yml file use karo
+        with:
+          dockerfile_path: 'Dockerfile.test' # Hum ek test file ko scan karenge
