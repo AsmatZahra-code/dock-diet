@@ -1,0 +1,12 @@
+# Binaries
+dock-diet
+dock-diet.exe
+
+# Auto-generated fixed files
+*.optimized
+
+# Local config (optional)
+.dock-diet.yaml
+
+# OS files
+.DS_Store
