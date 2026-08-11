@@ -2,6 +2,10 @@ name: 'Dock-Diet Scanner'
 description: 'Scans Dockerfiles for size optimization, security issues, and provides a Diet Score.'
 author: 'Asmat Zahra'
 
+branding:
+  icon: 'shield'
+  color: 'green'
+
 inputs:
   dockerfile_path:
     description: 'Path to the Dockerfile you want to scan'
