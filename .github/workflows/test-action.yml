@@ -119,9 +119,12 @@ jobs:
       #GITHUB_REF
       # A built-in GitHub variable that GitHub automatically sets when your workflow runs. Its value depends on what triggered the workflow:
       # if main branch triggers it its value will be refs/tags/main if tag like refs/tags/v1.0.0 this will be its value
+      # GITHUB_REPOSITORY = "AsmatZahra-code/dock-diet" it will make it lower
       - name: Extract Version Tag
         id: vars
-        run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        run: |
+          echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          echo "REPO_LOWER=$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
       # ── Step A: Cross-compile binaries for all target platforms ──────────────
       # Go's cross-compilation — you set environment variables to tell Go which OS/CPU to target:
@@ -156,5 +159,5 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/dock-diet:${{ steps.vars.outputs.TAG }}
-            ghcr.io/${{ github.repository_owner }}/dock-diet:latest
+            ghcr.io/${{ steps.vars.outputs.REPO_LOWER }}:${{ steps.vars.outputs.TAG }}
+            ghcr.io/${{ steps.vars.outputs.REPO_LOWER }}:latest
