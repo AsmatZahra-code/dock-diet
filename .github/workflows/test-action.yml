@@ -15,4 +15,4 @@ jobs:
       - name: Run Dock-Diet
         uses: ./ # './' ka matlab hai ke issi repository ki action.yml file use karo
         with:
-          dockerfile_path: 'Dockerfile.test' # Hum ek test file ko scan karenge
+          dockerfile_path: 'Dockerfile' # Hum ek test file ko scan karenge
