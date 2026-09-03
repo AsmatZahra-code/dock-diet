@@ -21,7 +21,7 @@ import (
 
 // ScanRemoteImage fetches image metadata from the registry and analyzes it
 func ScanRemoteImage(imageName string) error {
-	fmt.Printf("🔍 Fetching metadata for image: %s...\n", imageName)
+	fmt.Printf("Fetching metadata for image: %s...\n", imageName)
 
 	// Parse the image name (e.g., ubuntu:latest)
 	ref, err := name.ParseReference(imageName)
@@ -52,26 +52,26 @@ func ScanRemoteImage(imageName string) error {
 	layerCount := len(layers)
 
 	fmt.Println("-------------------------------------------------")
-	fmt.Printf("📦 IMAGE: %s\n", imageName)
-	fmt.Printf("📏 SIZE: %.2f MB\n", sizeMB)
-	fmt.Printf("🥞 LAYERS: %d\n", layerCount)
+	fmt.Printf("IMAGE: %s\n", imageName)
+	fmt.Printf("SIZE: %.2f MB\n", sizeMB)
+	fmt.Printf("LAYERS: %d\n", layerCount)
 	fmt.Println("-------------------------------------------------")
 
 	// Analyze the results
 	issues := 0
 	if sizeMB > 500 {
-		fmt.Println("⚠️  ISSUE: Image size is extremely large (> 500MB). Consider using an Alpine or Slim base.")
+		fmt.Println("ISSUE: Image size is extremely large (> 500MB). Consider using an Alpine or Slim base.")
 		issues++
 	}
 	if layerCount > 15 {
-		fmt.Println("⚠️  ISSUE: Too many layers (> 15). Try consolidating RUN instructions.")
+		fmt.Println("ISSUE: Too many layers (> 15). Try consolidating RUN instructions.")
 		issues++
 	}
 
 	if issues == 0 {
-		fmt.Println("✅ This image is well-optimized in terms of size and layers!")
+		fmt.Println("This image is well-optimized in terms of size and layers!")
 	} else {
-		fmt.Printf("🚨 Found %d optimization warning(s) for this image.\n", issues)
+		fmt.Printf("Found %d optimization warning(s) for this image.\n", issues)
 	}
 
 	return nil

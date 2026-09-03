@@ -56,8 +56,8 @@ func AutoFix(result ScanResult, originalPath string) error {
 	
 	err := os.WriteFile(newFilePath, []byte(finalContent), 0644)
 	if err == nil {
-		fmt.Printf("🛠️  Auto-Fix applied! Optimized file created at: %s\n", newFilePath)
-		fmt.Println("⚠️  Note: Base image changes and Multi-stage builds must be fixed manually to prevent breaking your app.")
+		fmt.Printf("Auto-Fix applied! Optimized file created at: %s\n", newFilePath)
+		fmt.Println("Note: Base image changes and Multi-stage builds must be fixed manually to prevent breaking your app.")
 	}
 	return err
 }

@@ -42,7 +42,7 @@ var scanCmd = &cobra.Command{
 
 		result, err := scanner.AnalyzeDockerfile(filePath)
 		if err != nil {
-			fmt.Printf("❌ Error: Could not read file '%s'.\n", filePath)
+			fmt.Printf("Error: Could not read file '%s'.\n", filePath)
 			os.Exit(1)
 		}
 
@@ -57,16 +57,16 @@ var scanCmd = &cobra.Command{
 			return
 		}
 
-		fmt.Printf("🔍 Scanned: %s\n", filePath)
-		fmt.Printf("⚙️  Target Score: %d (From Config)\n", config.FailUnder)
+		fmt.Printf("Scanned: %s\n", filePath)
+		fmt.Printf("Target Score: %d (From Config)\n", config.FailUnder)
 		fmt.Println("-------------------------------------------------")
 		
 		for i, issue := range result.Issues {
-			fmt.Printf("⚠️  ISSUE %d [%s]: %s\n", i+1, issue.Type, issue.Description)
+			fmt.Printf("ISSUE %d [%s]: %s\n", i+1, issue.Type, issue.Description)
 		}
 		
 		fmt.Println("-------------------------------------------------")
-		fmt.Printf("📊 DIET SCORE: %d/100 (Grade: %s)\n", result.Score, result.Grade)
+		fmt.Printf("DIET SCORE: %d/100 (Grade: %s)\n", result.Score, result.Grade)
 
 		if autoFix && result.NeedsFix {
 			scanner.AutoFix(result, filePath)
@@ -74,10 +74,10 @@ var scanCmd = &cobra.Command{
 
 		// CI/CD Failure Logic based on Config
 		if result.Score < config.FailUnder {
-			fmt.Printf("❌ Pipeline Failed: Score %d is below the required threshold of %d.\n", result.Score, config.FailUnder)
+			fmt.Printf("Pipeline Failed: Score %d is below the required threshold of %d.\n", result.Score, config.FailUnder)
 			os.Exit(1)
 		} else {
-			fmt.Println("✅ Pipeline Passed: Score meets the required threshold.")
+			fmt.Println("Pipeline Passed: Score meets the required threshold.")
 		}
 	},
 }

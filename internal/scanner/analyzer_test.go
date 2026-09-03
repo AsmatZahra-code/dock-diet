@@ -37,7 +37,7 @@ func TestAnalyze_PerfectDockerfile(t *testing.T) {
 	if result.Score != 100 {
 		t.Errorf("expected Score=100, got %d", result.Score)
 	}
-	if result.Grade != "A 🏆" {
+	if result.Grade != "A" {
 		t.Errorf("expected Grade=A, got %q", result.Grade)
 	}
 	if len(result.Issues) != 0 {
@@ -141,7 +141,7 @@ func TestAnalyze_AllIssues(t *testing.T) {
 	if result.Score != 0 {
 		t.Errorf("expected Score=0 (floored from negative), got %d", result.Score)
 	}
-	if result.Grade != "D ⚠️" {
+	if result.Grade != "D" {
 		t.Errorf("expected Grade=D, got %q", result.Grade)
 	}
 

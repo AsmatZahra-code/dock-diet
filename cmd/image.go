@@ -33,7 +33,7 @@ var imageCmd = &cobra.Command{
 		imageName := args[0]
 		err := scanner.ScanRemoteImage(imageName)
 		if err != nil {
-			fmt.Printf("❌ Error scanning image: %v\n", err)
+			fmt.Printf("Error scanning image: %v\n", err)
 			os.Exit(1)
 		}
 	},

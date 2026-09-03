@@ -131,13 +131,13 @@ func AnalyzeDockerfile(filePath string) (ScanResult, error) {
 		result.Score = 0
 	}
 	if result.Score >= 90 {
-		result.Grade = "A 🏆"
+		result.Grade = "A"
 	} else if result.Score >= 75 {
-		result.Grade = "B 🥈"
+		result.Grade = "B"
 	} else if result.Score >= 60 {
-		result.Grade = "C 🥉"
+		result.Grade = "C"
 	} else {
-		result.Grade = "D ⚠️"
+		result.Grade = "D"
 	}
 
 	result.NeedsFix = len(result.Issues) > 0
