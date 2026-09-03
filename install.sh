@@ -7,7 +7,7 @@ set -e
 REPO="AsmatZahra-code/dock-diet"
 BINARY_NAME="dock-diet"
 
-echo "Installing Dock-Diet..."
+echo "🥗 Installing Dock-Diet..."
 
 # 1. Detect OS
 OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
@@ -61,4 +61,5 @@ fi
 rm -rf "$TMP_DIR"
 
 echo "Success! Dock-Diet ${TAG} has been installed to ${INSTALL_DIR}/${BINARY_NAME}"
+echo "Built with ❤️ by Asmat Zahra."
 echo "Try running: dock-diet --help"

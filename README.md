@@ -1,4 +1,4 @@
-# Dock-Diet
+# 🥗 Dock-Diet
 
 ![Go Version](https://img.shields.io/badge/Go-1.26+-00ADD8?style=flat&logo=go)
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
@@ -226,4 +226,4 @@ We are actively working on expanding Dock-Diet. Upcoming features include:
 
 ## License
 
-Built by Asmat Zahra. Distributed under the MIT License.
+Built with ❤️ by Asmat Zahra. Distributed under the MIT License.
