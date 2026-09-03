@@ -19,6 +19,7 @@ Whether you are running it locally on your machine or inside a CI/CD pipeline, D
 - [⚙️ CI/CD Configuration](#%EF%B8%8F-cicd-configuration)
 - [🤖 GitHub Action Integration](#-github-action-integration)
 - [🔄 Release Pipeline](#-release-pipeline)
+- [🔮 Future Roadmap](#-future-roadmap)
 - [📄 License](#-license)
 
 ---
@@ -208,6 +209,18 @@ This triggers the GitHub Workflow to automatically:
 2. Cross-compile native binaries for Linux (`amd64`, `arm64`), macOS (`amd64`, `arm64`), and Windows (`amd64.exe`).
 3. Publish a GitHub Release with an auto-generated changelog.
 4. Build and push a container image to `ghcr.io/asmatzahra-code/dock-diet`.
+
+---
+
+## 🔮 Future Roadmap
+
+We are actively working on expanding Dock-Diet. Upcoming features include:
+
+- 🧩 **AST-Based Smart RUN Consolidation:** Safely combine adjacent `RUN` instructions into single consolidated layers (`RUN cmd1 && \ cmd2`).
+- 🔐 **Secret & Credential Detection:** Scan Dockerfiles for accidental hardcoded API keys, tokens, and credentials.
+- 🏗️ **Multi-Stage Build Generator:** Interactive wizard to convert single-stage Dockerfiles (Node.js, Go, Python, Java) into optimized multi-stage builds.
+- 📊 **HTML Audit Reports:** Generate interactive HTML visual coverage and audit reports (`dock-diet scan Dockerfile --output html`).
+- ⚙️ **Custom Rule Engine:** Support custom YAML rule definitions for team-specific lint policies.
 
 ---
 
