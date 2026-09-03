@@ -1,3 +1,17 @@
+// scan.go registers the "scan" sub-command for dock-diet.
+//
+// Usage:
+//
+//	dock-diet scan [file-path] [flags]
+//
+// Flags:
+//
+//	-o, --output string   Output format: "text" (default) or "json"
+//	-f, --fix             Auto-fix detected issues and write a .optimized file
+//
+// The command loads the optional .dock-diet.yaml configuration to determine
+// the fail_under score threshold. If the Dockerfile score falls below this
+// threshold, the process exits with code 1, enabling CI/CD pipeline gating.
 package cmd
 
 import (

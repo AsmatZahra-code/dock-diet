@@ -1,3 +1,15 @@
+// config.go loads the optional .dock-diet.yaml project configuration file.
+//
+// Supported YAML fields:
+//
+//	fail_under   int       Minimum acceptable Diet Score (default: 100).
+//	                      The scan command exits with code 1 when the score
+//	                      falls below this value, enabling CI/CD gating.
+//	ignore_rules []string Reserved for future per-rule suppression support.
+//
+// If the configuration file is absent or contains invalid YAML, LoadConfig
+// returns the default configuration silently so that pipelines that have not
+// opted in are not accidentally broken.
 package scanner
 
 import (
@@ -14,22 +26,29 @@ type Config struct {
 
 // LoadConfig reads the .dock-diet.yaml file if it exists
 func LoadConfig() Config {
-	// Default configuration
+	// Default configuration — used when the file is absent, invalid, or
+	// when individual fields are omitted (zero-value) in the YAML.
 	defaultConfig := Config{
-		FailUnder: 100, // By default, fail if score is below 100 (any issue)
+		FailUnder: 100, // Fail the pipeline if any issue is detected.
 	}
 
 	content, err := os.ReadFile(".dock-diet.yaml")
 	if err != nil {
-		// If file doesn't exist, return default config silently
+		// File doesn't exist — return defaults silently.
 		return defaultConfig
 	}
 
 	var userConfig Config
 	err = yaml.Unmarshal(content, &userConfig)
 	if err != nil {
-		// If YAML is invalid, print warning and return default
+		// Invalid YAML — return defaults silently.
 		return defaultConfig
+	}
+
+	// Apply defaults for any fields the user left unset (zero-value).
+	// This ensures an empty file behaves identically to a missing file.
+	if userConfig.FailUnder == 0 {
+		userConfig.FailUnder = defaultConfig.FailUnder
 	}
 
 	return userConfig

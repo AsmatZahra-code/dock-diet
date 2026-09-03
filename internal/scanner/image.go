@@ -1,3 +1,15 @@
+// image.go implements ScanRemoteImage, which fetches a published Docker image's
+// metadata from the remote container registry (Docker Hub by default) using the
+// google/go-containerregistry library, then reports optimization warnings.
+//
+// Thresholds applied:
+//
+//	Size   > 500 MB   warns to switch to an Alpine or Slim base image
+//	Layers > 15       warns to consolidate RUN instructions
+//
+// Note: ScanRemoteImage requires an active internet connection. Unit tests that
+// exercise real registry calls are guarded with t.Skip("requires network") so
+// they are skipped automatically in offline and standard CI environments.
 package scanner
 
 import (

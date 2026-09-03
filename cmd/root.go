@@ -1,3 +1,7 @@
+// Package cmd defines the Cobra CLI command tree for dock-diet.
+// root.go registers the root command, which serves as the parent for all
+// sub-commands (scan, image). Execute is the single exported entry point
+// called by main; it exits the process with code 1 on any unhandled error.
 package cmd
 
 import (

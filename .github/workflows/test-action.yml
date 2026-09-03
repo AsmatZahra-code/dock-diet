@@ -1,18 +1,160 @@
-name: Test Dock-Diet Action
+name: CI
 
-# Yeh pipeline tab chalegi jab bhi aap code push karengi
-on: [push]
+# Trigger on every push to any branch and every pull request against main.
+# The release job is additionally gated behind a version tag (v*.*.*).
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*.*.*"]
+  pull_request:
+    branches: ["main"]
 
 jobs:
-  test-our-tool:
+
+  # ── Job 1: Verify ────────────────────────────────────────────────────────────
+  # Mirrors 'make verify' exactly: tidy → vet → build → test (with race detector).
+  # Runs on every push and pull request.
+  verify:
+    name: Verify (Lint, Build & Test)
     runs-on: ubuntu-latest
+
     steps:
-      # 1. Repository ka code download karna
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2. Hamara apna banaya hua Dock-Diet Action chalana
-      - name: Run Dock-Diet
-        uses: ./ # './' ka matlab hai ke issi repository ki action.yml file use karo
+      - name: Set up Go
+        uses: actions/setup-go@v5
         with:
-          dockerfile_path: 'Dockerfile' # Hum ek test file ko scan karenge
+          go-version-file: go.mod
+          cache: true
+
+      - name: Tidy (go.mod / go.sum sync)
+        run: go mod tidy
+
+      - name: Vet (Static Analysis)
+        run: go vet ./...
+
+      - name: Build
+        run: go build ./...
+
+      - name: Test with Race Detector
+        run: go test ./... -v -race -coverprofile=coverage.out
+        env:
+          CI: "true"   # Signals image_test.go to skip live registry calls
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.out
+
+  # ── Job 2: Integration Tests ─────────────────────────────────────────────────
+  # Builds the real binary and runs end-to-end CLI smoke tests.
+  # Runs only after the verify job passes.
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: verify
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Build Binary
+        run: go build -o dock-diet .
+
+      - name: Smoke Test — Scan Own Dockerfile (expect pass)
+        run: ./dock-diet scan Dockerfile
+
+      - name: Smoke Test — JSON Output Format
+        run: ./dock-diet scan Dockerfile --output json
+
+      - name: Smoke Test — All-Issues Fixture (expect non-zero exit)
+        # A Dockerfile with every possible violation must cause the CLI to exit 1.
+        # The '!' inverts the exit code so the step passes only when it exits 1.
+        run: "! ./dock-diet scan internal/scanner/testdata/all_issues.Dockerfile"
+
+      - name: Docker Self-Build (verify Dockerfile compiles)
+        run: docker build -t dock-diet-test .
+
+  # ── Job 3: Release ───────────────────────────────────────────────────────────
+  # Runs only on version tags (v*.*.*). Requires integration-test to pass first.
+  #
+  # Step A — GitHub Binary Release:
+  #   Cross-compiles dock-diet for 5 platforms and attaches the binaries to a
+  #   GitHub Release, so users can download and run it without installing Go.
+  #
+  # Step B — GHCR Image Push:
+  #   Builds the Docker image and pushes it to the GitHub Container Registry
+  #   (ghcr.io). After this, action.yaml references the pre-built image so
+  #   users of the GitHub Action get a ~5-second startup instead of ~2 minutes.
+  # now we have to just git tag v1.0.0
+  # git push origin v1.0.0
+  # ✅ Done. GitHub Actions baaki sab khud karta hai.
+  release:
+    name: Release (Binaries + GHCR Image)
+    runs-on: ubuntu-latest
+    needs: integration-test
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    permissions:
+      contents: write    # Required: create GitHub Release and upload assets
+      packages: write    # Required: push image to ghcr.io
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      #GITHUB_REF
+      # A built-in GitHub variable that GitHub automatically sets when your workflow runs. Its value depends on what triggered the workflow:
+      # if main branch triggers it its value will be refs/tags/main if tag like refs/tags/v1.0.0 this will be its value
+      - name: Extract Version Tag
+        id: vars
+        run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      # ── Step A: Cross-compile binaries for all target platforms ──────────────
+      # Go's cross-compilation — you set environment variables to tell Go which OS/CPU to target:
+      - name: Build Binaries for All Platforms
+        run: |
+          mkdir -p dist
+          GOOS=linux   GOARCH=amd64 go build -o dist/dock-diet-linux-amd64       .
+          GOOS=linux   GOARCH=arm64 go build -o dist/dock-diet-linux-arm64       .
+          GOOS=darwin  GOARCH=amd64 go build -o dist/dock-diet-darwin-amd64      .
+          GOOS=darwin  GOARCH=arm64 go build -o dist/dock-diet-darwin-arm64      .
+          GOOS=windows GOARCH=amd64 go build -o dist/dock-diet-windows-amd64.exe .
+
+      - name: Create GitHub Release and Upload Binary Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          # this line will cause the changelog to be automatically added 
+          #When GitHub automatically generates the changelog for your release, it creates a nice summary page on GitHub under the Releases tab
+          generate_release_notes: true
+
+      # ── Step B: Build Docker image and push to GHCR ──────────────────────────
+      - name: Log in to GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}   # Built-in token, no extra secrets needed
+
+      - name: Build and Push Docker Image to GHCR
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/dock-diet:${{ steps.vars.outputs.TAG }}
+            ghcr.io/${{ github.repository_owner }}/dock-diet:latest

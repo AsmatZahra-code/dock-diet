@@ -1,3 +1,18 @@
+// fixer.go implements AutoFix, which applies automated remediation to a
+// previously analysed Dockerfile and writes the corrected content to
+// <originalPath>.optimized alongside the source file.
+//
+// Fixes applied automatically:
+//
+//  1. Apt-get cache cleanup: appends "&& rm -rf /var/lib/apt/lists/*" to any
+//     RUN instruction containing apt-get that does not already include cleanup.
+//
+//  2. Non-root user injection: if no USER instruction is present, a useradd
+//     block and "USER appuser" are appended to the end of the file.
+//
+// Fixes that require manual intervention (not applied automatically):
+//   - Switching to a lighter base image (alpine/slim)
+//   - Restructuring into a multi-stage build
 package scanner
 
 import (
