@@ -111,22 +111,22 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    subgraph Triggers
+    subgraph Triggers ["Triggers"]
         PushCode["Git Push to Branch"]
-        PushTag["Git Tag Push (v*.*.*)"]
+        PushTag["Git Tag Push"]
     end
 
-    subgraph Job 1: Verify
+    subgraph Job1 ["Job 1: Verify"]
         V1["go mod tidy"] --> V2["go vet ./..."]
         V2 --> V3["go build"]
         V3 --> V4["go test -race"]
     end
 
-    subgraph Job 2: Integration Test
+    subgraph Job2 ["Job 2: Integration Test"]
         I1["Build Binary"] --> I2["Run End-to-End Smoke Tests"]
     end
 
-    subgraph Job 3: Release (Only on v*.*.*)
+    subgraph Job3 ["Job 3: Release (On Version Tags)"]
         R1["Extract Version Tag & Lowercase Repo Name"]
         R2["Cross-Compile 5 Binaries<br/>(Linux, Darwin, Windows)"]
         R3["Softprops Release Action<br/>(Upload Assets + Auto-Changelog)"]
@@ -135,9 +135,9 @@ flowchart LR
         R1 --> R2 --> R3 --> R4
     end
 
-    PushCode --> Job 1: Verify
-    Job 1: Verify --> Job 2: Integration Test
+    PushCode --> Job1
+    Job1 --> Job2
     
-    PushTag --> Job 1: Verify
-    Job 2: Integration Test -->|Passes| Job 3: Release (Only on v*.*.*)
+    PushTag --> Job1
+    Job2 -->|Passes| Job3
 ```
